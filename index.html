@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1 id="h1">00</h1>
+  <h1 id="h2">00</h1>
+  <h1 id="h3">00</h1>
+  <h1 id="h4">00</h1>
+  <h1 id="h5">00</h1>
+  <h1 id="h6">00</h1>
+  <script>
+    let a = document.getElementById("h1");
+    let b = document.getElementById("h2");
+    let c = document.getElementById("h3");
+    let d = document.getElementById("h4");
+    let e = document.getElementById("h5");
+    let f = document.getElementById("h6");
+    // Check if the browser supports the Navigator API
+    if (navigator && navigator.userAgent) {
+        // Get the user agent string
+        const userAgent = navigator.userAgent;
+
+        // Check for specific keywords to identify the device type
+        if (userAgent.match(/Android/i)) {
+            a.innerHTML = 'Device type: Android';
+        } else if (userAgent.match(/iPhone|iPad|iPod/i)) {
+            b.innerHTML = 'Device type: iOS';
+        } else if (userAgent.match(/Windows Phone/i)) {
+            c.innerHTML = 'Device type: Windows Phone';
+        } else {
+            d.innerHTML = 'Device type: Other';
+        }
+
+        // Access other information from the navigator object
+        e.innerHTML = 'Browser: ' + navigator.appName;
+        f.innerHTML = 'Version: ' + navigator.appVersion;
+    }
+  </script>
+</body>
+</html>
