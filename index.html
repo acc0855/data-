@@ -1,61 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-  <h1 id="h1">00</h1>
-  <h1 id="h2">00</h1>
-  <h1 id="h3">00</h1>
-  <h1 id="h4">00</h1>
-  <h1 id="h5">00</h1>
-  <h1 id="h6">00</h1>
-  <script>
-    let a = document.getElementById("h1");
-    let b = document.getElementById("h2");
-    let c = document.getElementById("h3");
-    let d = document.getElementById("h4");
-    let e = document.getElementById("h5");
-    let f = document.getElementById("h6");
-    // Check if the browser supports the Navigator API
-    if (navigator && navigator.userAgent) {
-        // Get the user agent string
-        const userAgent = navigator.userAgent;
+    <h1 id="h1">00</h1>
+    <h1 id="h2">00</h1>
+    <h1 id="h3">00</h1>
+    <h1 id="h4">00</h1>
+    <h1 id="h5">00</h1>
+    <h1 id="h6">00</h1>
 
-        // Check for specific keywords to identify the device type
-        if (userAgent.match(/Android/i)) {
-            a.innerHTML = 'Device type: Android';
-        } else if (userAgent.match(/iPhone|iPad|iPod/i)) {
-            b.innerHTML = 'Device type: iOS';
-        } else if (userAgent.match(/Windows Phone/i)) {
-            c.innerHTML = 'Device type: Windows Phone';
+    <script>
+        let a = document.getElementById("h1");
+        let b = document.getElementById("h2");
+        let c = document.getElementById("h3");
+        let d = document.getElementById("h4");
+        let e = document.getElementById("h5");
+        let f = document.getElementById("h6");
+
+        // Check if the browser supports the Navigator API
+        if (navigator && navigator.userAgent) {
+            // Get the user agent string
+            const userAgent = navigator.userAgent;
+
+            // Check for specific keywords to identify the device type
+            if (userAgent.match(/Android/i)) {
+                a.innerHTML = 'Device type: Android';
+            } else if (userAgent.match(/iPhone|iPad|iPod/i)) {
+                b.innerHTML = 'Device type: iOS';
+            } else if (userAgent.match(/Windows Phone/i)) {
+                c.innerHTML = 'Device type: Windows Phone';
+            } else {
+                d.innerHTML = 'Device type: Other';
+            }
+
+            // Access other information from the navigator object
+            e.innerHTML = 'Browser: ' + navigator.appName;
+            f.innerHTML = 'Version: ' + navigator.appVersion;
+        }
+    </script>
+
+    <h1 id="deviceName">Device Name: Loading...</h1>
+    <script>
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+                    const deviceName = videoInputDevices.length > 0 ? videoInputDevices[0].label : 'Not available';
+                    document.getElementById('deviceName').textContent = 'Device Name: ' + deviceName;
+                })
+                .catch(error => {
+                    console.error('Error enumerating devices:', error);
+                    document.getElementById('deviceName').textContent = 'Device Name: Error';
+                });
         } else {
-            d.innerHTML = 'Device type: Other';
+            document.getElementById('deviceName').textContent = 'Device Name: Not supported';
+        }
+    </script>
+
+    <h1 id="location">Fetching location...</h1>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById('location').textContent = 'Geolocation is not supported by this browser.';
+            }
         }
 
-        // Access other information from the navigator object
-        e.innerHTML = 'Browser: ' + navigator.appName;
-        f.innerHTML = 'Version: ' + navigator.appVersion;
-    }
-  </script>
-  <h1 id="deviceName">Device Name: Loading...</h1>
-  <script>
-    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-        navigator.mediaDevices.enumerateDevices()
-            .then(devices => {
-                const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
-                const deviceName = videoInputDevices.length > 0 ? videoInputDevices[0].label : 'Not available';
-                document.getElementById('deviceName').textContent = 'Device Name: ' + deviceName;
-            })
-            .catch(error => {
-                console.error('Error enumerating devices:', error);
-                document.getElementById('deviceName').textContent = 'Device Name: Error';
-            });
-    } else {
-        document.getElementById('deviceName').textContent = 'Device Name: Not supported';
-    }
-  </script>
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            document.getElementById('location').textContent = `Latitude: ${latitude}, Longitude: ${longitude}`;
+
+            // Nominatim URL for reverse geocoding
+            const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+            getReverseGeocodingData(apiUrl);
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById('location').textContent = 'User denied the request for Geolocation.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById('location').textContent = 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById('location').textContent = 'The request to get user location timed out.';
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById('location').textContent = 'An unknown error occurred.';
+                    break;
+            }
+        }
+
+        // Call the function to get the user's location
+        getLocation();
+    </script>
+
+    <div id="result">
+        <h2>Location Information</h2>
+        <p id="city"></p>
+        <p id="homeNumber"></p>
+        <p id="country"></p>
+    </div>
+
+    <script>
+        async function getReverseGeocodingData(apiUrl) {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                const address = data.address;
+                document.getElementById('city').textContent = `City: ${address.city || address.town || 'N/A'}`;
+                document.getElementById('homeNumber').textContent = `Home Number: ${address.house_number || 'N/A'}`;
+                document.getElementById('country').textContent = `Country: ${address.country || 'N/A'}`;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('result').textContent = 'Error fetching location information.';
+            }
+        }
+    </script>
 </body>
 </html>
