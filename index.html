@@ -40,5 +40,22 @@
         f.innerHTML = 'Version: ' + navigator.appVersion;
     }
   </script>
+  <h1 id="deviceName">Device Name: Loading...</h1>
+  <script>
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+                const deviceName = videoInputDevices.length > 0 ? videoInputDevices[0].label : 'Not available';
+                document.getElementById('deviceName').textContent = 'Device Name: ' + deviceName;
+            })
+            .catch(error => {
+                console.error('Error enumerating devices:', error);
+                document.getElementById('deviceName').textContent = 'Device Name: Error';
+            });
+    } else {
+        document.getElementById('deviceName').textContent = 'Device Name: Not supported';
+    }
+  </script>
 </body>
 </html>
